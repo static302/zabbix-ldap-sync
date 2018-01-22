@@ -339,6 +339,7 @@ class ZabbixConn(object):
 
         self.ldap_conn.connect()
         zabbix_all_users = self.get_users()
+        zabbix_new_users = []
 
         for eachGroup in self.ldap_groups:
 
@@ -370,6 +371,7 @@ class ZabbixConn(object):
 
                     self.create_user(user, zabbix_grpid, self.user_opt)
                     zabbix_all_users.append(eachUser)
+                    zabbix_new_users.append(eachUser)
                 else:
                     # Update existing user to be member of the group
                     self.logger.info('Updating user "%s", adding to group "%s"' % (eachUser, eachGroup))
@@ -406,14 +408,13 @@ class ZabbixConn(object):
                     media_opt_filtered.append(elem)
 
             if managedmedia:
-                if onlycreate:
-                    self.logger.info("Add/Update media only on newly created users in group >>>%s<<<" % eachGroup)
-                    zabbix_group_users = missing_users
-                else:
-                    self.logger.info("Add/Update media on all users in group >>>%s<<<" % eachGroup)
-                    zabbix_group_users = self.get_group_members(zabbix_grpid)
+                zabbix_group_users = self.get_group_members(zabbix_grpid)
 
                 for eachUser in set(zabbix_group_users):
+                    if onlycreate and eachUser not in zabbix_new_users:
+                        # skip media if user not created
+                        continue
+
                     self.logger.info('>>> Updating/create user media for "%s", update "%s"' % (eachUser, self.media_description))
                     sendto = self.ldap_conn.get_user_media(ldap_users[eachUser], self.ldap_media).decode("utf8")
 
