@@ -37,26 +37,7 @@ class ZabbixConn(object):
             self.ldap_groups = ldap_conn.get_groups_with_wildcard()
 
         # Use logger to log information
-        self.logger = logging.getLogger()
-        if config.verbose:
-            self.logger.setLevel(logging.DEBUG)
-        else:
-            self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-        # Log to stdout
-        ch = logging.StreamHandler()
-        if config.verbose:
-            ch.setLevel(logging.DEBUG)
-
-        ch.setFormatter(formatter)
-        self.logger.addHandler(ch)  # Use logger to log information
-
-        # Log from pyzabbix
-        log = logging.getLogger('pyzabbix')
-        log.addHandler(ch)
-        if config.verbose:
-            log.setLevel(logging.DEBUG)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def connect(self):
         """
@@ -71,7 +52,7 @@ class ZabbixConn(object):
             self.conn = ZabbixAPI(self.server)
         elif self.auth == "http":
             self.conn = ZabbixAPI(self.server, use_authenticate=False)
-            self.conn.session.auth = (self.username, self.password)
+            self.conn.session.auth = (self.username, self.password,)
 
         else:
             raise SystemExit('api auth method not implemented: %s' % self.conn.auth)
