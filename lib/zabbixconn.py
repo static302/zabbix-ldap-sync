@@ -227,21 +227,41 @@ class ZabbixConn(object):
 
         """
 
+        # self.update_media(eachUser, self.media_description, sendto, media_opt_filtered)
+        self.logger.debug('>>>>>> update_media(user "%s", desc "%s", sendto "%s", media_opt [%s]' % (user, description, sendto, media_opt))
+
         userid = self.get_user_id(user)
         mediatypeid = self.get_mediatype_id(description)
 
+        self.logger.debug('>>>>>> userid "%s" mediatypeid "%s" ' % (userid, mediatypeid))
+
         if mediatypeid:
-            media_defaults = {
+            media_changed = {
                 'mediatypeid': mediatypeid,
                 'sendto': sendto,
                 'active': '0',
                 'severity': '63',
                 'period': '1-7,00:00-24:00'
             }
-            media_defaults.update(media_opt)
+            media_changed.update(media_opt)
 
-            self.delete_media_by_description(user, description)
-            result = self.conn.user.addmedia(users=[{"userid": str(userid)}], medias=media_defaults)
+            media_current_list = self.conn.user.get(output="medias", userids=userid, selectMedias=["mediatypeid","sendto","active","severity","period"])
+            self.logger.debug('>>>>>> update_media - media_list %s' % (media_current_list))
+
+            media_current_list = media_current_list[0]['medias']
+            self.logger.debug('>>>>>> update_media - media_current filtered %s' % (media_current_list))
+            media_defaults = [media_changed]
+            for m in media_current_list:
+                if m['mediatypeid'] != mediatypeid:
+                    media_defaults.append(m)
+
+            self.logger.debug('>>>>>> update_media - media_default %s' % (media_defaults))
+
+            if self.conn.api_version() >= "3.4":
+                result = self.conn.user.update(userid=str(userid), user_medias=media_defaults)
+            else:
+                self.delete_media_by_description(user, description)
+                result = self.conn.user.updatemedia(users=[{"userid": str(userid)}], medias=media_defaults)
         else:
             result = None
 
