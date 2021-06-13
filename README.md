@@ -61,6 +61,7 @@ You can use [Apache Directory Studio](https://directory.apache.org/studio/) to t
 * `bindpass` - Password for LDAP user
 * `groups` - LDAP groups to sync with Zabbix (support wildcard - TESTED ONLY with Active Directory, see Command-line arguments)
 * `media` - Name of the LDAP attribute of user object, that will be used to set `Send to` property of Zabbix user media. If entry is not used, no media synchronizastion is made. Common value is `mail`.
+* `ignore_tls_errors` - If set to true, tls connection problems are ignored (you should use this only for testing)
 
 #### [ad]
 * `filtergroup` = The ldap filter to get group in ActiveDirectory mode, by default `(&(objectClass=group)(name=%s))`
@@ -82,7 +83,10 @@ You can use [Apache Directory Studio](https://directory.apache.org/studio/) to t
 * `username` - Zabbix username. This user must have permissions to add/remove users and groups. Typically, this would be `Zabbix Admin` account.
 * `password` - Password for Zabbix user
 * `auth` - can be `http` (for basic auth) or `webform` (for regular form based login)
-* `alldirusergroup` - Group in Zabbix where to put all Directory users. Is used to check users when removing from Zabbix groups when removed from Directory group
+* `alldirusergroup` - Group in Zabbix where to put all users created from the ldap directory.<br>
+   Create this group before using this tool and give members of this group no permissions to your zabbix instance.<br>
+   If a user is not available anymore by the directory, the user remains in this single group.
+* `ignore_tls_errors` - If set to true, tls connection problems are ignored (you should use this only for testing)
 
 #### [user]
 Allows to override various properties for Zabbix users created by script. See [User object](https://www.zabbix.com/documentation/3.2/manual/api/reference/user/object) in Zabbix API documentation for available properties. If section/property doesn't exist, defaults are:
