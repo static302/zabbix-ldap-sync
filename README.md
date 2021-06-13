@@ -170,7 +170,6 @@ In my busy everyday life, I have unfortunately not yet found time for the follow
 - isolate configuration logic in lib/zabbixldapconf.py
 - add software tests
 - provide the possibility 
-- add possibility to deactivate users by removing the from all groups and parking the to a unprivileged group
 
 Contributions are very welcome.
 
