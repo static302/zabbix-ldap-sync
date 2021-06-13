@@ -23,7 +23,7 @@ class ZabbixConn(object):
         self.password = config.zbx_password
         self.auth = config.zbx_auth
         self.dryrun = config.dryrun
-        self.nocheckcertificate = config.zbx_nocheckcertificate
+        self.nocheckcertificate = config.zbx_ignore_tls_errors
         self.ldap_groups = config.ldap_groups
         self.ldap_media = config.ldap_media
         self.media_opt = config.media_opt
