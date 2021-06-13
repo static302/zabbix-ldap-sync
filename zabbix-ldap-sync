@@ -88,8 +88,9 @@ Options:
     config.zbx_removeabsent = args['--remove-absent']
 
 
-    config.zbx_ignore_tls_errors = args['--no-check-certificate']
-    config.ldap_ignore_tls_errors = args['--no-check-certificate']
+    if args['--no-check-certificate']:
+        config.zbx_ignore_tls_errors = args['--no-check-certificate']
+        config.ldap_ignore_tls_errors = args['--no-check-certificate']
 
 
     config.ldap_recursive = args['--recursive']
