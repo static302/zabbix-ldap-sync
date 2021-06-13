@@ -84,8 +84,12 @@ Options:
     config.zbx_lowercase = args['--lowercase']
     config.zbx_skipdisabled = args['--skip-disabled']
     config.zbx_deleteorphans = args['--delete-orphans']
+
     config.zbx_removeabsent = args['--remove-absent']
-    config.zbx_nocheckcertificate = args['--no-check-certificate']
+
+
+    config.zbx_ignore_tls_errors = args['--no-check-certificate']
+
 
     config.ldap_recursive = args['--recursive']
     config.ldap_wildcard_search = args['--wildcard-search']

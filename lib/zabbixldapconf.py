@@ -28,7 +28,6 @@ class ZabbixLDAPConf(object):
         self.ldap_skipdisabled = False
 
         self.zbx_deleteorphans = False
-        self.zbx_nocheckcertificate = False
         self.zbx_recursivezbx_recursive = False
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -42,6 +41,7 @@ class ZabbixLDAPConf(object):
 
             self.ldap_user = parser.get('ldap', 'binduser')
             self.ldap_passwd = parser.get('ldap', 'bindpass')
+            self.ldap_ignore_tls_errors = ZabbixLDAPConf.try_get_item_bool(parser, 'ldap', 'ignore_tls_errors', False)
 
             self.ldap_media = ZabbixLDAPConf.try_get_item(parser, 'ldap', 'media', None)
 
@@ -67,6 +67,7 @@ class ZabbixLDAPConf(object):
 
             self.zbx_server = parser.get('zabbix', 'server')
 
+            self.zbx_ignore_tls_errors = ZabbixLDAPConf.try_get_item_bool(parser, 'zabbix', 'ignore_tls_errors', False)
             self.zbx_username = parser.get('zabbix', 'username')
             self.zbx_password = parser.get('zabbix', 'password')
             self.zbx_auth = parser.get('zabbix', 'auth')
@@ -104,7 +105,15 @@ class ZabbixLDAPConf(object):
             raise SystemExit('Configuration issues detected in %s' % self.config)
 
     @staticmethod
-    def try_get_item(parser, section, option, default):
+    def try_get_item_bool(parser, section, option, default) -> bool:
+        value = str(ZabbixLDAPConf.try_get_item(parser, section, option, default))
+        if value.lower() == "true":
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def try_get_item(parser, section, option, default) -> str:
         """
         Gets config item
 
