@@ -105,15 +105,15 @@ class ZabbixLDAPConf(object):
             raise SystemExit('Configuration issues detected in %s' % self.config)
 
     @staticmethod
-    def try_get_item_bool(parser, section, option, default) -> bool:
-        value = str(ZabbixLDAPConf.try_get_item(parser, section, option, default))
+    def try_get_item_bool(parser: configparser.ConfigParser, section: str, option: str, default: bool) -> bool:
+        value = ZabbixLDAPConf.try_get_item(parser, section, option, str(default))
         if value.lower() == "true":
             return True
         else:
             return False
 
     @staticmethod
-    def try_get_item(parser, section, option, default) -> str:
+    def try_get_item(parser: configparser.ConfigParser, section: str, option: str, default: str = None) -> str:
         """
         Gets config item
 

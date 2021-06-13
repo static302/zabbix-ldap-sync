@@ -42,6 +42,8 @@ class ZabbixConn(object):
         # Use logger to log information
         self.logger = logging.getLogger(self.__class__.__name__)
 
+        self.username_attribute = "alias"
+
     def connect(self):
         """
         Establishes a connection to the Zabbix server
@@ -69,6 +71,8 @@ class ZabbixConn(object):
             raise SystemExit('Cannot login to Zabbix server: %s' % e)
 
         self.logger.info("Connected to Zabbix API Version %s" % self.conn.api_version())
+        if self.conn.api_version() >= "5.4":
+            self.username_attribute = "username"
 
     def get_users(self):
         """
@@ -80,7 +84,7 @@ class ZabbixConn(object):
         """
         result = self.conn.user.get(output='extend')
 
-        users = [user['alias'] for user in result]
+        users = [user[self.username_attribute] for user in result]
 
         return users
 
@@ -122,7 +126,7 @@ class ZabbixConn(object):
         """
         result = self.conn.user.get(output='extend')
 
-        userid = [u['userid'] for u in result if u['alias'].lower() == user].pop()
+        userid = [u['userid'] for u in result if u[self.username_attribute].lower() == user].pop()
 
         return userid
 
@@ -153,7 +157,7 @@ class ZabbixConn(object):
         """
         result = self.conn.user.get(output='extend', usrgrpids=groupid)
 
-        users = [user['alias'] for user in result]
+        users = [user[self.username_attribute] for user in result]
 
         return users
 
@@ -407,7 +411,7 @@ class ZabbixConn(object):
                                              f" {random_passwd} and membership of Zabbix group >>{eachGroup}<<")
                         else:
                             self.logger.info(f"Created user {each_user} and membership of Zabbix group >>{eachGroup}<<")
-                    user = {'alias': each_user}
+                    user = {self.username_attribute: each_user}
 
                     if self.ldap_conn.get_user_givenName(ldap_users[each_user]) is None:
                         user['name'] = ''
