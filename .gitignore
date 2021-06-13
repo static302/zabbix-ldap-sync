@@ -7,3 +7,4 @@ lib/__pycache__/*
 *.swp
 venv
 .idea
+.vscode
