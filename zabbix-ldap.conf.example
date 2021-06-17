@@ -4,7 +4,8 @@ uri = ldaps://ldap.example.org:636/
 base = dc=example,dc=org
 binduser = DOMAIN\ldapuser
 bindpass = ldappass
-groups = sysadmins,developer group
+# The groups to be synced, group "sysadmin" gets role superusers (id: 1), other groups get the default role defined in [user]
+groups = sysadmins:1,developer group
 media = mail
 
 [activedirectory]

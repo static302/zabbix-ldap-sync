@@ -59,7 +59,9 @@ You can use [Apache Directory Studio](https://directory.apache.org/studio/) to t
 * `base` - Base `Distinguished Name`
 * `binduser` - LDAP user which has permissions to perform LDAP search
 * `bindpass` - Password for LDAP user
-* `groups` - LDAP groups to sync with Zabbix (support wildcard - TESTED ONLY with Active Directory, see Command-line arguments)
+* `groups` - LDAP groups to sync with Zabbix
+   * supports wildcard - TESTED ONLY with Active Directory, see Command-line arguments
+   * roleids for the created users can be encoded with groups (`<goupname>:<numeric role id>`)
 * `media` - Name of the LDAP attribute of user object, that will be used to set `Send to` property of Zabbix user media. If entry is not used, no media synchronizastion is made. Common value is `mail`.
 * `ignore_tls_errors` - If set to true, tls connection problems are ignored (you should use this only for testing)
 
