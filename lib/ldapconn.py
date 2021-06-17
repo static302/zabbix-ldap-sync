@@ -227,12 +227,12 @@ class LDAPConn(object):
 
         return mail.pop()
 
-    def get_user_sn(self, dn):
+    def get_user_sn(self, dn: str):
         """
         Retrieves the 'sn' attribute of an LDAP user
 
         Args:
-            username (str): The LDAP distinguished name to lookup
+            dn (str): The LDAP distinguished name to lookup
 
         Returns:
             The user's surname attribute

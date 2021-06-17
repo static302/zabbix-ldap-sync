@@ -3,6 +3,7 @@ import configparser
 import sys
 import traceback
 import logging
+from typing import Union
 
 
 class ZabbixLDAPConf(object):
@@ -107,13 +108,14 @@ class ZabbixLDAPConf(object):
     @staticmethod
     def try_get_item_bool(parser: configparser.ConfigParser, section: str, option: str, default: bool) -> bool:
         value = ZabbixLDAPConf.try_get_item(parser, section, option, str(default))
-        if value.lower() == "true":
+        if value and value.lower() == "true":
             return True
         else:
             return False
 
     @staticmethod
-    def try_get_item(parser: configparser.ConfigParser, section: str, option: str, default: str = None) -> str:
+    def try_get_item(parser: configparser.ConfigParser, section: str,
+                     option: str, default: str = None) -> Union[str, None]:
         """
         Gets config item
 
