@@ -12,6 +12,7 @@ class LDAPConn(object):
     """
 
     def __init__(self, config):
+        self.conn = None
         self.disabled_filter = config.ad_filterdisabled
         self.uri = config.ldap_uri
         self.base = config.ldap_base
@@ -64,14 +65,14 @@ class LDAPConn(object):
         """
         self.conn.unbind()
 
-    def remove_ad_referrals(self, result):
+    def remove_ad_referrals(self, result: list):
         """
         Remove referrals from AD query result
 
         """
         return [i for i in result if i[0] is not None]
 
-    def get_group_members(self, group):
+    def get_group_members(self, group: str):
         """
         Retrieves the members of an LDAP group
 
@@ -100,7 +101,7 @@ class LDAPConn(object):
         else:
             return self.get_group_members_ldap(result)
 
-    def get_group_members_ldap(self, result):
+    def get_group_members_ldap(self, result: list):
         dn, users = result.pop()
         final_listing = {}
         group_members = []
@@ -141,7 +142,7 @@ class LDAPConn(object):
 
         return final_listing
 
-    def get_group_members_active_directory(self, result):
+    def get_group_members_active_directory(self, result: list):
         result = self.remove_ad_referrals(result)
         final_listing = {}
 
@@ -197,12 +198,12 @@ class LDAPConn(object):
                 final_listing[username] = dn
         return final_listing
 
-    def get_user_media(self, dn, ldap_media):
+    def get_user_media(self, dn: str, ldap_media: list):
         """
         Retrieves the 'media' attribute of an LDAP user
 
         Args:
-            username (str): The LDAP distinguished name to lookup
+            dn (str): The LDAP distinguished name to lookup
             ldap_media (str): The name of the field containing the media address
 
         Returns:
@@ -256,12 +257,12 @@ class LDAPConn(object):
 
         return sn.pop()
 
-    def get_user_givenName(self, dn):
+    def get_user_givenName(self, dn: str):
         """
         Retrieves the 'givenName' attribute of an LDAP user
 
         Args:
-            username (str): The LDAP distinguished name to lookup
+            dn (str): The LDAP distinguished name to lookup
 
         Returns:
             The user's given name attribute

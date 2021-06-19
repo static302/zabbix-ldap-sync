@@ -273,7 +273,7 @@ class ZabbixConn(object):
 
         return result
 
-    def update_media(self, user: str, description: str, sendto: str, media_opt: dict):
+    def update_media(self, user: str, description: str, sendto: str, media_opt: list):
         """
         Adds media to an existing Zabbix user
 
@@ -331,8 +331,8 @@ class ZabbixConn(object):
 
             if media_ids:
                 self.logger.info('Remove other exist media from user %s (type=%s)' % (user, description))
-                for id in media_ids:
-                    self.conn.user.deletemedia(id)
+                for media_id in media_ids:
+                    self.conn.user.deletemedia(media_id)
 
     def create_missing_groups(self):
         """
