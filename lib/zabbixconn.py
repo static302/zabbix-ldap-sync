@@ -192,7 +192,7 @@ class ZabbixConn(object):
         """
         user_settings = {'autologin': 0, 'usrgrps': [{'usrgrpid': str(groupid)}], 'passwd': password}
 
-        for opt, value in user_opt:
+        for opt, value in user_opt.items():
             if opt == "show_password":
                 continue
             else:
@@ -384,9 +384,13 @@ class ZabbixConn(object):
         """
 
         self.ldap_conn.connect()
-        zabbix_alldirusergroup_id = [g['usrgrpid'] for g in self.get_groups() if
-                                     g['name'] == self.alldirusergroup].pop()
-        zabbix_alldirusergroup_users = self.get_group_members(zabbix_alldirusergroup_id)
+        if self.alldirusergroup:
+            zabbix_alldirusergroup_id = [g['usrgrpid'] for g in self.get_groups() if
+                                         g['name'] == self.alldirusergroup].pop()
+            zabbix_alldirusergroup_users = self.get_group_members(zabbix_alldirusergroup_id)
+        else:
+            zabbix_alldirusergroup_id = None
+            zabbix_alldirusergroup_users = []
 
         for group_spec in self.ldap_groups:
 
@@ -448,11 +452,12 @@ class ZabbixConn(object):
                         self.update_user(each_user, zabbix_group_id)
 
             # Add users to Zabbix all directory users
-            self.logger.info('Adding users to group %s...' % self.alldirusergroup)
-            missing_allusers = set(list(ldap_users.keys())) - set(zabbix_alldirusergroup_users)
-            for each_user in missing_allusers:
-                self.logger.info('Updating user "%s", adding to group "%s"' % (each_user, self.alldirusergroup))
-                self.update_user(each_user, zabbix_alldirusergroup_id)
+            if zabbix_alldirusergroup_id:
+                self.logger.info('Adding users to group %s...' % self.alldirusergroup)
+                missing_allusers = set(list(ldap_users.keys())) - set(zabbix_alldirusergroup_users)
+                for each_user in missing_allusers:
+                    self.logger.info('Updating user "%s", adding to group "%s"' % (each_user, self.alldirusergroup))
+                    self.update_user(each_user, zabbix_alldirusergroup_id)
 
             # Handle any extra users in the group
             self.logger.info('Handle extra users...')

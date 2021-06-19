@@ -85,9 +85,10 @@ You can use [Apache Directory Studio](https://directory.apache.org/studio/) to t
 * `username` - Zabbix username. This user must have permissions to add/remove users and groups. Typically, this would be `Zabbix Admin` account.
 * `password` - Password for Zabbix user
 * `auth` - can be `http` (for basic auth) or `webform` (for regular form based login)
-* `alldirusergroup` - Group in Zabbix where to put all users created from the ldap directory.<br>
+* `alldirusergroup` - A group in Zabbix where to put all users created from the ldap directory.<br>
    Create this group before using this tool and give members of this group no permissions to your zabbix instance.<br>
-   If a user is not available anymore by the directory, the user remains in this single group.
+   If a user is not available anymore by the directory, the user remains in this single group. This allows us to keep the audit trail of zabbix consistent. 
+   If you do not define this property, users are not assigned to that group.
 * `ignore_tls_errors` - If set to true, tls connection problems are ignored (you should use this only for testing)
 
 #### [user]

@@ -1,9 +1,9 @@
 import codecs
 import configparser
+import logging
 import sys
 import traceback
-import logging
-from typing import Union
+from typing import Optional
 
 
 class ZabbixLDAPConf(object):
@@ -73,7 +73,7 @@ class ZabbixLDAPConf(object):
             self.zbx_password = parser.get('zabbix', 'password')
             self.zbx_auth = parser.get('zabbix', 'auth')
 
-            self.zbx_alldirusergroup = parser.get('zabbix', 'alldirusergroup')
+            self.zbx_alldirusergroup = ZabbixLDAPConf.try_get_item(parser, 'zabbix', 'alldirusergroup', None)
 
             self.user_opt = ZabbixLDAPConf.try_get_section(parser, 'user', {})
 
@@ -115,7 +115,7 @@ class ZabbixLDAPConf(object):
 
     @staticmethod
     def try_get_item(parser: configparser.ConfigParser, section: str,
-                     option: str, default: str = None) -> Union[str, None]:
+                     option: str, default: str = None) -> Optional[str]:
         """
         Gets config item
 
@@ -131,11 +131,9 @@ class ZabbixLDAPConf(object):
         """
 
         try:
-            result = parser.get(section, option)
+            return parser.get(section, option)
         except (configparser.NoOptionError, configparser.NoSectionError):
-            result = default
-
-        return result
+            return default
 
     @staticmethod
     def try_get_section(parser, section, default):
