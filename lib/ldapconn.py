@@ -103,6 +103,8 @@ class LDAPConn(object):
 
     def get_group_members_ldap(self, result: list):
         dn, users = result.pop()
+        if not users:
+            return {}
         final_listing = {}
         group_members = []
         # Get info for each user in the group
