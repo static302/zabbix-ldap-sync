@@ -390,7 +390,11 @@ class ZabbixConn(object):
                     if self.deleteorphans:
                         self.logger.info('Deleting user: "%s"' % eachUser)
                         if not self.dryrun:
-                            self.delete_user(eachUser)
+                            try:
+                                self.delete_user(eachUser)
+                            except Exception as e:
+                                self.logger.error('Error deleting user "%s"' % eachUser)
+                                self.logger.error(e)
                     else:
                         self.logger.info('User not in ldap group "%s"' % eachUser)
 
