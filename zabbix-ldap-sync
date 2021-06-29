@@ -29,24 +29,18 @@
 The zabbix-ldap-sync script is used for syncing LDAP users with Zabbix.
 
 """
-import warnings
-import traceback
 import logging
-import sys
-import os
+
 from docopt import docopt
 
-rundir = os.path.realpath(os.path.dirname(sys.argv[0]))
-sys.path.append(rundir + "/lib/")
-
-from zabbixldapconf import ZabbixLDAPConf
-from zabbixconn import ZabbixConn
-from ldapconn import LDAPConn
+from lib.ldapconn import LDAPConn
+from lib.zabbixconn import ZabbixConn
+from lib.zabbixldapconf import ZabbixLDAPConf
 
 
 def main():
     usage = """
-Usage: zabbix-ldap-sync [-lsrwdn] [--verbose] [--dryrun] -f <config>
+Usage: zabbix-ldap-sync [-lsrwdna] [--verbose] [--dryrun] -f <config>
        zabbix-ldap-sync -v
        zabbix-ldap-sync -h
 
@@ -58,6 +52,7 @@ Options:
   -r, --recursive               Resolves AD group members recursively (i.e. nested groups)
   -w, --wildcard-search         Search AD group with wildcard (e.g. R.*.Zabbix.*) - TESTED ONLY with Active Directory
   -d, --delete-orphans          Delete Zabbix users that don't exist in a LDAP group
+  -a, --remove-absent           Remove Zabbix users from group that don't exist in a LDAP group
   -n, --no-check-certificate    Don't check Zabbix server certificate
   --verbose                     Print debug message from ZabbixAPI
   --dryrun                      Just simulate zabbix interaction
@@ -73,24 +68,28 @@ Options:
     else:
         logger.setLevel(logging.INFO)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter_string = '%(asctime)-10s - %(levelname)-7s - %(name)s:%(lineno)d - %(message)s'
+    formatter = logging.Formatter(formatter_string)
 
     # Log to stdout
     ch = logging.StreamHandler()
     if args["--verbose"]:
-         ch.setLevel(logging.DEBUG)
+        ch.setLevel(logging.DEBUG)
 
     ch.setFormatter(formatter)
     logger.addHandler(ch)  # Use logger to log information
-
-
 
     config = ZabbixLDAPConf(args['--file'])
 
     config.zbx_lowercase = args['--lowercase']
     config.zbx_skipdisabled = args['--skip-disabled']
     config.zbx_deleteorphans = args['--delete-orphans']
-    config.zbx_nocheckcertificate = args['--no-check-certificate']
+
+    config.zbx_removeabsent = args['--remove-absent']
+
+    if args['--no-check-certificate']:
+        config.zbx_ignore_tls_errors = args['--no-check-certificate']
+        config.ldap_ignore_tls_errors = args['--no-check-certificate']
 
     config.ldap_recursive = args['--recursive']
     config.ldap_wildcard_search = args['--wildcard-search']
@@ -99,14 +98,12 @@ Options:
     config.dryrun = args['--dryrun']
 
     ldap_conn = LDAPConn(config)
-
+    ldap_conn.connect()
     zabbix_conn = ZabbixConn(config, ldap_conn)
-
     zabbix_conn.connect()
-
     zabbix_conn.create_missing_groups()
-
     zabbix_conn.sync_users()
+
 
 if __name__ == '__main__':
     main()
