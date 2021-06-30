@@ -75,7 +75,7 @@ class ZabbixLDAPConf(object):
 
             self.zbx_alldirusergroup = ZabbixLDAPConf.try_get_item(parser, 'zabbix', 'alldirusergroup', None)
 
-            self.user_opt = ZabbixLDAPConf.try_get_section(parser, 'user', {})
+            self.user_opt = dict(ZabbixLDAPConf.try_get_section(parser, 'user', {}))
 
             self.media_name = ZabbixLDAPConf.try_get_item(parser, 'media', 'name', 'Email (HTML)')
 

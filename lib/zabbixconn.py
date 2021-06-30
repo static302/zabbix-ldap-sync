@@ -419,11 +419,10 @@ class ZabbixConn(object):
             # Add missing users
             self.logger.info('Syncing users...')
             for each_user in missing_users:
-                print("WWWW")
                 # Create new user if it does not exists already
                 if each_user not in zabbix_all_users:
                     random_passwd = ''.join(random.sample(string.ascii_letters + string.digits, 32))
-                    for opt, value in self.user_opt:
+                    for opt, value in self.user_opt.items():
                         if opt == "show_password" and value.lower() == "true":
                             self.logger.info(f"Created user {each_user}, start password" +
                                              f" {random_passwd} and membership of Zabbix group >>{group_name}<<")
