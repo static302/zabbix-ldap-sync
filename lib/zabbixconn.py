@@ -339,7 +339,13 @@ class ZabbixConn(object):
         Creates any missing LDAP groups in Zabbix
 
         """
-        missing_groups = set(self.ldap_groups) - set([g['name'] for g in self.get_groups()])
+
+        groups = []
+        for group_spec in self.ldap_groups:
+            name, _ = self._get_group_spec(group_spec)
+            groups.append(name)
+
+        missing_groups = set(groups) - set([g['name'] for g in self.get_groups()])
 
         for eachGroup in missing_groups:
             self.logger.info('Creating Zabbix group %s' % eachGroup)
@@ -394,13 +400,7 @@ class ZabbixConn(object):
 
         for group_spec in self.ldap_groups:
 
-            m = re.match(r"^(.+):(\d+)$", group_spec)
-            if m:
-                group_name = m.group(1).strip()
-                role_id = m.group(2).strip()
-            else:
-                group_name = group_spec
-                role_id = None
+            group_name, role_id = self._get_group_spec(group_spec)
 
             self.logger.info('Processing group >>>%s<<<...' % group_name)
             zabbix_all_users = [x.lower() for x in self.get_users()]
@@ -526,3 +526,13 @@ class ZabbixConn(object):
 
         self.ldap_conn.disconnect()
         self.logger.info('Done!')
+
+    def _get_group_spec(self, group_spec: str) -> (str,str):
+        m = re.match(r"^(.+):(\d+)$", group_spec)
+        if m:
+            group_name = m.group(1).strip()
+            role_id = m.group(2).strip()
+        else:
+            group_name = group_spec
+            role_id = None
+        return group_name, role_id

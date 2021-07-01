@@ -15,6 +15,9 @@ all: deps
 
 deps: venv/bin/activate
 
+run: deps
+	./zabbix-ldap-sync -f zabbix-ldap.conf
+
 venv/bin/activate: Makefile
 	@which python3 > /dev/null || { echo "Missing requirement: python3" >&2; exit 1; }
 	virtualenv --version > /dev/null || { echo "Missing requirement: virtualenv -- aborting" >&2; exit 1; }
