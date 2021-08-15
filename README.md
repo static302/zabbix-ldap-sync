@@ -127,6 +127,7 @@ See [example config file](zabbix-ldap.conf.example), create a copy of this and m
 
 ## Command-line arguments
 
+
     Usage: zabbix-ldap-sync [-lsrwdn] [--verbose] -f <config>
        zabbix-ldap-sync -v
        zabbix-ldap-sync -h
@@ -134,14 +135,17 @@ See [example config file](zabbix-ldap.conf.example), create a copy of this and m
     Options:
       -h, --help                    Display this usage info
       -v, --version                 Display version and exit
-      -l, --lowercase               Create AD user names as lowercase
+      -l, --ldap-accountids         Do not make changes to ldap account id names
       -s, --skip-disabled           Skip disabled AD users
       -r, --recursive               Resolves AD group members recursively (i.e. nested groups)
       -w, --wildcard-search         Search AD group with wildcard (e.g. R.*.Zabbix.*) - TESTED ONLY with Active Directory
+      -d, --delete-orphans          Delete Zabbix users that don't exist in a LDAP group
       -a, --remove-absent           Remove Zabbix users from group that don't exist in a LDAP group
       -n, --no-check-certificate    Don't check Zabbix server certificate
       --verbose                     Print debug message from ZabbixAPI
+      --dryrun                      Just simulate zabbix interaction
       -f <config>, --file <config>  Configuration file to use
+
 
 ## Importing LDAP users into Zabbix
 
