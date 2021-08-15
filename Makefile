@@ -49,19 +49,24 @@ type-check: deps
 build:
 	docker build -t ${IMAGE_NAME}:${TAG} --build-arg FORCE_UPGRADE_MARKER="${FORCE_UPGRADE_MARKER}" -f Dockerfile .
 	@docker images ${IMAGE_NAME}:${TAG} --format='DockerImage Size: {{.Size}}'
+.PHONY: build
 
 clean_docker:
 	docker rmi ${IMAGE_NAME}:${TAG} || true
+.PHONY: clean_docker
 
 publish: clean_docker build
 	docker tag ${IMAGE_NAME}:${TAG} ${IMAGE_REPO}/${IMAGE_NAME}:${TAG_PUBLISH}
 	docker push ${IMAGE_REPO}/${IMAGE_NAME}:${TAG_PUBLISH}
 	docker tag ${IMAGE_NAME}:${TAG} ${IMAGE_REPO}/${IMAGE_NAME}:latest
 	docker push ${IMAGE_REPO}/${IMAGE_NAME}:latest
+.PHONY: publish
 
 testdocker: build
-   docker run --rm --name ${IMAGE_NAME} ${IMAGE_NAME}:${TAG} -- -c zabbix-ldap.conf.example
+	docker run --rm -v $(pwd)/zabbix-ldap.conf.example:/zabbix-ldap.conf.example --name ${IMAGE_NAME} ${IMAGE_NAME}:${TAG} -- -f /zabbix-ldap.conf.example
+.PHONY: testdocker
 
 inspect: build
-   docker run --rm --name ${IMAGE_NAME} -ti  ${IMAGE_NAME}:${TAG} -- bash
+	docker run --rm --name ${IMAGE_NAME} -ti  ${IMAGE_NAME}:${TAG} -- bash
+.PHONY: inspect
 

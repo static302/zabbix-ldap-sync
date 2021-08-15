@@ -11,9 +11,9 @@ RUN /tmp/setup/04_install.sh
 ARG FORCE_UPGRADE_MARKER=unknown
 RUN /tmp/setup/05_perform_upgrade.sh
 ADD /lib /zabbix-ldap-sync/lib
-ADD /zabbix-ldap-sync /zabbix-ldap-sync/lib
+ADD /zabbix-ldap-sync /zabbix-ldap-sync/zabbix-ldap-sync
 RUN /tmp/setup/10_finalize.sh
 USER 1001
 
 WORKDIR /
-ENTRYPOINT ["python3", "/zabbix/__main__.py"]
+ENTRYPOINT ["/zabbix-ldap-sync/zabbix-ldap-sync"]

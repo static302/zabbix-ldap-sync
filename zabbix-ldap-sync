@@ -59,7 +59,7 @@ Options:
   -f <config>, --file <config>  Configuration file to use
 
 """
-    args = docopt(usage, version="0.1.1")
+    args = docopt(usage, version="0.8")
 
     # Use logger to log information
     logger = logging.getLogger()
