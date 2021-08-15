@@ -1,9 +1,10 @@
+import collections
+import functools
 import logging
 import random
-import string
-import collections
 import re
-from typing import Dict, Optional
+import string
+from typing import Dict, Optional, Tuple, Union
 
 from pyzabbix import ZabbixAPI, ZabbixAPIException
 
@@ -26,6 +27,7 @@ class ZabbixConn(object):
         self.auth = config.zbx_auth
         self.dryrun = config.dryrun
         self.nocheckcertificate = config.zbx_ignore_tls_errors
+        self.preserve_accountids = config.ldap_accountids
         self.ldap_groups = config.ldap_groups
         self.ldap_media = config.ldap_media
         self.media_opt = config.media_opt
@@ -75,6 +77,7 @@ class ZabbixConn(object):
         if self.conn.api_version() >= "5.4":
             self.username_attribute = "username"
 
+    @functools.lru_cache()
     def get_users(self):
         """
         Retrieves the existing Zabbix users
@@ -85,11 +88,13 @@ class ZabbixConn(object):
         """
         result = self.conn.user.get(output='extend')
 
-        users = [user[self.username_attribute] for user in result]
-
+        if self.preserve_accountids:
+            users = [user[self.username_attribute] for user in result]
+        else:
+            users = [user[self.username_attribute].lower() for user in result]
         return users
 
-    def get_mediatype_id(self, name: str):
+    def get_mediatype_id(self, name: str) -> Optional[str]:
         """
         Retrieves the mediatypeid by name
 
@@ -114,7 +119,7 @@ class ZabbixConn(object):
 
         return mediatypeid
 
-    def get_user_id(self, user):
+    def get_user_id(self, user: str) -> Optional[str]:
         """
         Retrieves the userid of a specified user
 
@@ -125,11 +130,11 @@ class ZabbixConn(object):
             The userid of the specified user
 
         """
-        result = self.conn.user.get(output='extend')
-
-        userid = [u['userid'] for u in result if u[self.username_attribute].lower() == user].pop()
-
-        return userid
+        result = self.get_users()
+        if user in result:
+            return user
+        else:
+            return None
 
     def get_groups(self):
         """
@@ -403,8 +408,11 @@ class ZabbixConn(object):
             group_name, role_id = self._get_group_spec(group_spec)
 
             self.logger.info('Processing group >>>%s<<<...' % group_name)
-            zabbix_all_users = [x.lower() for x in self.get_users()]
-            ldap_users = {k.lower(): v for k, v in self.ldap_conn.get_group_members(group_name).items()}
+            zabbix_all_users = self.get_users()
+            if self.preserve_accountids:
+                ldap_users = {k: v for k, v in self.ldap_conn.get_group_members(group_name).items()}
+            else:
+                ldap_users = {k.lower(): v for k, v in self.ldap_conn.get_group_members(group_name).items()}
 
             # Do nothing if LDAP group contains no users and "--delete-orphans" is not specified
             if not ldap_users and not self.deleteorphans and not self.removeabsent:
@@ -508,7 +516,8 @@ class ZabbixConn(object):
                 zabbix_group_users = self.get_group_members(zabbix_group_id)
 
             for each_user in set(zabbix_group_users):
-                each_user = each_user.lower()
+                if not self.preserve_accountids:
+                    each_user = each_user.lower()
 
                 if self.ldap_media:
                     if self.ldap_conn.get_user_media(ldap_users[each_user], self.ldap_media):
@@ -527,12 +536,12 @@ class ZabbixConn(object):
         self.ldap_conn.disconnect()
         self.logger.info('Done!')
 
-    def _get_group_spec(self, group_spec: str) -> (str,str):
+    def _get_group_spec(self, group_spec: str) -> Union[str, Tuple[str, str]]:
         m = re.match(r"^(.+):(\d+)$", group_spec)
         if m:
             group_name = m.group(1).strip()
             role_id = m.group(2).strip()
+            return group_name, role_id
         else:
             group_name = group_spec
-            role_id = None
-        return group_name, role_id
+            return group_name

@@ -23,7 +23,7 @@ class ZabbixLDAPConf(object):
         self.verbose = False
         self.zbx_dryrun = False
 
-        self.ldap_lowercase = False
+        self.ldap_accountids = False
         self.ldap_recursive = False
         self.ldap_wildcard_search = False
         self.ldap_skipdisabled = False

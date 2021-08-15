@@ -16,6 +16,7 @@ class LDAPConn(object):
         self.disabled_filter = config.ad_filterdisabled
         self.uri = config.ldap_uri
         self.base = config.ldap_base
+        self.ldap_accountids = config.ldap_accountids
         self.ldap_user = config.ldap_user
         self.ldap_pass = config.ldap_passwd
         self.ldap_type = config.ldap_type
@@ -27,7 +28,6 @@ class LDAPConn(object):
         if self.recursive and self.active_directory:
             self.memberof_filter = config.ldap_memberof_filter
         self.skipdisabled = config.ldap_skipdisabled
-        self.lowercase = config.ldap_lowercase
         self.user_filter = config.ldap_user_filter
         self.verbose = config.verbose
         self.openldap_type = config.openldap_type
@@ -192,10 +192,10 @@ class LDAPConn(object):
                 dn = item[0]
                 username = item[1][self.uid_attribute]
 
-                if self.lowercase:
-                    username = username[0].decode('utf8').lower()
-                else:
+                if self.ldap_accountids:
                     username = username[0].decode('utf8')
+                else:
+                    username = username[0].decode('utf8').lower()
 
                 final_listing[username] = dn
         return final_listing
