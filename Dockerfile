@@ -12,6 +12,7 @@ ARG FORCE_UPGRADE_MARKER=unknown
 RUN /tmp/setup/05_perform_upgrade.sh
 ADD /lib /zabbix-ldap-sync/lib
 ADD /zabbix-ldap-sync /zabbix-ldap-sync/zabbix-ldap-sync
+ADD /zabbix-ldap.conf.example /zabbix-ldap-sync/zabbix-ldap.conf.example
 RUN /tmp/setup/10_finalize.sh
 USER 1001
 

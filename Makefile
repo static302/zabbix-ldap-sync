@@ -62,11 +62,11 @@ publish: clean_docker build
 	docker push ${IMAGE_REPO}/${IMAGE_NAME}:latest
 .PHONY: publish
 
-testdocker: build
-	docker run --rm -v $(pwd)/zabbix-ldap.conf.example:/zabbix-ldap.conf.example --name ${IMAGE_NAME} ${IMAGE_NAME}:${TAG} -- -f /zabbix-ldap.conf.example
-.PHONY: testdocker
+dockertest: build
+	docker run --rm --name ${IMAGE_NAME} ${IMAGE_NAME}:${TAG} -f /zabbix-ldap-sync/zabbix-ldap.conf.example
+.PHONY: dockertest
 
-inspect: build
-	docker run --rm --name ${IMAGE_NAME} -ti  ${IMAGE_NAME}:${TAG} -- bash
+dockerinspect: build
+	docker run --rm --entrypoint /bin/bash --name ${IMAGE_NAME} -ti ${IMAGE_NAME}:${TAG}
 .PHONY: inspect
 
