@@ -4,7 +4,7 @@ import logging
 import random
 import re
 import string
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union, List
 
 from pyzabbix import ZabbixAPI, ZabbixAPIException
 
@@ -47,7 +47,7 @@ class ZabbixConn(object):
 
         self.username_attribute = "alias"
 
-    def connect(self):
+    def connect(self) -> bool:
         """
         Establishes a connection to the Zabbix server
 
@@ -76,9 +76,12 @@ class ZabbixConn(object):
         self.logger.info("Connected to Zabbix API Version %s" % self.conn.api_version())
         if self.conn.api_version() >= "5.4":
             self.username_attribute = "username"
+        return True
 
-    @functools.lru_cache()
-    def get_users(self):
+    def get_users(self) -> List[dict]:
+        return self.conn.user.get(output='extend')
+
+    def get_users_names(self) -> List[str]:
         """
         Retrieves the existing Zabbix users
 
@@ -86,7 +89,7 @@ class ZabbixConn(object):
             A list of the existing Zabbix users
 
         """
-        result = self.conn.user.get(output='extend')
+        result = self.get_users()
 
         if self.preserve_accountids:
             users = [user[self.username_attribute] for user in result]
@@ -131,8 +134,10 @@ class ZabbixConn(object):
 
         """
         result = self.get_users()
-        if user in result:
-            return user
+
+        userids = [u['userid'] for u in result if u[self.username_attribute].lower() == user]
+        if len(userids) == 1:
+            return userids[0]
         else:
             return None
 
@@ -246,6 +251,7 @@ class ZabbixConn(object):
             for u in group_users:
                 user_ids.add(u['userid'])
             user_ids.add(str(userid))
+
             if not self.dryrun:
                 result = self.conn.usergroup.update(usrgrpid=str(group_id), userids=list(user_ids))
         else:
@@ -408,7 +414,7 @@ class ZabbixConn(object):
             group_name, role_id = self._get_group_spec(group_spec)
 
             self.logger.info('Processing group >>>%s<<<...' % group_name)
-            zabbix_all_users = self.get_users()
+            zabbix_all_users = self.get_users_names()
             if self.preserve_accountids:
                 ldap_users = {k: v for k, v in self.ldap_conn.get_group_members(group_name).items()}
             else:
