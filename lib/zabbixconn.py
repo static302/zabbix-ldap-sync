@@ -61,6 +61,7 @@ class ZabbixConn(object):
         elif self.auth == "http":
             self.conn = ZabbixAPI(self.server, use_authenticate=False)
             self.conn.session.auth = (self.username, self.password)
+            # self.conn.session.verify = False
 
         else:
             raise SystemExit('api auth method not implemented: %s' % self.conn.auth)
@@ -351,6 +352,7 @@ class ZabbixConn(object):
 
         """
 
+        # import pdb; pdb.set_trace();
         groups = []
         for group_spec in self.ldap_groups:
             name, _ = self._get_group_spec(group_spec)
@@ -402,8 +404,15 @@ class ZabbixConn(object):
 
         self.ldap_conn.connect()
         if self.alldirusergroup:
-            zabbix_alldirusergroup_id = [g['usrgrpid'] for g in self.get_groups() if
-                                         g['name'] == self.alldirusergroup].pop()
+            # zabbix_alldirusergroup_id = [g['usrgrpid'] for g in self.get_groups() if
+            #                              g['name'] == self.alldirusergroup].pop()
+            zabbix_alldirusergroup_id = []
+            for g in self.get_groups():
+                if g['name'] == self.alldirusergroup:
+                    zabbix_alldirusergroup_id.append(g['usrgrpid'])
+            zabbix_alldirusergroup_id.append(g['usrgrpid'])
+            zabbix_alldirusergroup_id = zabbix_alldirusergroup_id.pop()
+
             zabbix_alldirusergroup_users = self.get_group_members(zabbix_alldirusergroup_id)
         else:
             zabbix_alldirusergroup_id = None
@@ -415,6 +424,8 @@ class ZabbixConn(object):
 
             self.logger.info('Processing group >>>%s<<<...' % group_name)
             zabbix_all_users = self.get_users_names()
+
+            ldap_users = {}
             if self.preserve_accountids:
                 ldap_users = {k: v for k, v in self.ldap_conn.get_group_members(group_name).items()}
             else:
@@ -425,7 +436,13 @@ class ZabbixConn(object):
                 self.logger.info('Done for group %s. Nothing to do' % group_name)
                 continue
 
-            zabbix_group_id = [g['usrgrpid'] for g in self.get_groups() if g['name'] == group_name].pop()
+            # zabbix_group_id = [g['usrgrpid'] for g in self.get_groups() if g['name'] == group_name].pop()
+            zabbix_group_id = []
+            for g in self.get_groups():
+                if g['name'] == group_name:
+                    zabbix_group_id.append(g['usrgrpid'])
+
+            zabbix_group_id = zabbix_group_id.pop()
 
             zabbix_group_users = self.get_group_members(zabbix_group_id)
 
@@ -550,4 +567,4 @@ class ZabbixConn(object):
             return group_name, role_id
         else:
             group_name = group_spec
-            return group_name
+            return group_name, None
