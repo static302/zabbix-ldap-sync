@@ -61,7 +61,6 @@ class ZabbixConn(object):
         elif self.auth == "http":
             self.conn = ZabbixAPI(self.server, use_authenticate=False)
             self.conn.session.auth = (self.username, self.password)
-            # self.conn.session.verify = False
 
         else:
             raise SystemExit('api auth method not implemented: %s' % self.conn.auth)
@@ -352,7 +351,6 @@ class ZabbixConn(object):
 
         """
 
-        # import pdb; pdb.set_trace();
         groups = []
         for group_spec in self.ldap_groups:
             name, _ = self._get_group_spec(group_spec)
@@ -404,8 +402,6 @@ class ZabbixConn(object):
 
         self.ldap_conn.connect()
         if self.alldirusergroup:
-            # zabbix_alldirusergroup_id = [g['usrgrpid'] for g in self.get_groups() if
-            #                              g['name'] == self.alldirusergroup].pop()
             zabbix_alldirusergroup_id = []
             for g in self.get_groups():
                 if g['name'] == self.alldirusergroup:
@@ -436,7 +432,6 @@ class ZabbixConn(object):
                 self.logger.info('Done for group %s. Nothing to do' % group_name)
                 continue
 
-            # zabbix_group_id = [g['usrgrpid'] for g in self.get_groups() if g['name'] == group_name].pop()
             zabbix_group_id = []
             for g in self.get_groups():
                 if g['name'] == group_name:
