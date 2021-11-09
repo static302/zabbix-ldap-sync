@@ -5,7 +5,7 @@ import re
 import string
 import sys
 from functools import lru_cache
-from typing import Dict, Optional, Tuple, Union, List
+from typing import Dict, Optional, Tuple, List
 
 from pyzabbix import ZabbixAPI, ZabbixAPIException
 
@@ -73,7 +73,6 @@ class ZabbixConn(object):
             self.logger.fatal(f"unable to find role >>{role_name}<<")
             sys.exit(3)
         return zabbix_role_id
-
 
     def connect(self) -> bool:
         """
@@ -599,7 +598,7 @@ class ZabbixConn(object):
         if "role" in self.user_opt:
             group_name = group_spec
             role_id = str(self._get_role_id(self.user_opt['role']))
-            return group_name,  role_id
+            return group_name, role_id
         else:
             self.logger.fatal("No default role specified")
             sys.exit(3)
