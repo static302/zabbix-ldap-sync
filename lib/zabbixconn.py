@@ -1,9 +1,9 @@
 import collections
-import functools
 import logging
 import random
 import re
 import string
+import sys
 from typing import Dict, Optional, Tuple, Union, List
 
 from pyzabbix import ZabbixAPI, ZabbixAPIException
@@ -23,7 +23,7 @@ class ZabbixConn(object):
         self.server = config.zbx_server
         self.username = config.zbx_username
         self.password = config.zbx_password
-        self.alldirusergroup = config.zbx_alldirusergroup
+        self.alldirusergroup = config.zbx_alldirusergroup.strip()
         self.auth = config.zbx_auth
         self.dryrun = config.dryrun
         self.nocheckcertificate = config.zbx_ignore_tls_errors
@@ -402,13 +402,14 @@ class ZabbixConn(object):
 
         self.ldap_conn.connect()
         if self.alldirusergroup:
-            zabbix_alldirusergroup_id = []
+            zabbix_alldirusergroup_id = None
             for g in self.get_groups():
                 if g['name'] == self.alldirusergroup:
-                    zabbix_alldirusergroup_id.append(g['usrgrpid'])
-            zabbix_alldirusergroup_id.append(g['usrgrpid'])
-            zabbix_alldirusergroup_id = zabbix_alldirusergroup_id.pop()
-
+                    zabbix_alldirusergroup_id = g['usrgrpid']
+                    break
+            if not zabbix_alldirusergroup_id:
+                self.logger.fatal(f"Unable to find alldirusergroup >>{self.alldirusergroup}<<")
+                sys.exit(3)
             zabbix_alldirusergroup_users = self.get_group_members(zabbix_alldirusergroup_id)
         else:
             zabbix_alldirusergroup_id = None
@@ -554,7 +555,7 @@ class ZabbixConn(object):
         self.ldap_conn.disconnect()
         self.logger.info('Done!')
 
-    def _get_group_spec(self, group_spec: str) -> Union[str, Tuple[str, str]]:
+    def _get_group_spec(self, group_spec: str) -> Union[Tuple[str, str], Tuple[str, None]]:
         m = re.match(r"^(.+):(\d+)$", group_spec)
         if m:
             group_name = m.group(1).strip()
