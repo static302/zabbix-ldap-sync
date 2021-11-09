@@ -48,11 +48,11 @@ class ZabbixConn(object):
 
         self.username_attribute = "alias"
 
-    @lru_cache
+    @lru_cache()
     def _get_group_id(self, group_name: str) -> int:
         zabbix_group_id = None
-        self.logger.debug(f"Lookup for id >>{group_name}<<")
-        for g in self.get_groups():
+        self.logger.debug(f"Lookup for groupid >>{group_name}<<")
+        for g in self._get_groups():
             if g['name'] == group_name:
                 zabbix_group_id = g['usrgrpid']
                 break
@@ -60,6 +60,20 @@ class ZabbixConn(object):
             self.logger.fatal(f"unable to find group >>{group_name}<<")
             sys.exit(3)
         return zabbix_group_id
+
+    @lru_cache()
+    def _get_role_id(self, role_name: str) -> int:
+        zabbix_role_id = None
+        self.logger.debug(f"Lookup for role id >>{role_name}<<")
+        for g in self._get_roles():
+            if g['name'] == role_name:
+                zabbix_role_id = g['roleid']
+                break
+        if not zabbix_role_id:
+            self.logger.fatal(f"unable to find role >>{role_name}<<")
+            sys.exit(3)
+        return zabbix_role_id
+
 
     def connect(self) -> bool:
         """
@@ -155,7 +169,7 @@ class ZabbixConn(object):
         else:
             return None
 
-    def get_groups(self):
+    def _get_groups(self):
         """
         Retrieves the existing Zabbix groups
 
@@ -164,9 +178,20 @@ class ZabbixConn(object):
 
         """
         result = self.conn.usergroup.get(output='extend')
-
         groups = [{'name': group['name'], 'usrgrpid': group['usrgrpid']} for group in result]
 
+        return groups
+
+    def _get_roles(self):
+        """
+        Retrieves the existing Zabbix groups
+
+        Returns:
+            A dict of the existing Zabbix groups and their group ids
+
+        """
+        result = self.conn.role.get(output='extend')
+        groups = [{'name': group['name'], 'roleid': group['roleid']} for group in result]
         return groups
 
     def get_group_members(self, groupid):
@@ -372,7 +397,7 @@ class ZabbixConn(object):
         if not self.alldirusergroup:
             groups.append(self.alldirusergroup)
 
-        missing_groups = set(groups) - set([g['name'] for g in self.get_groups()])
+        missing_groups = set(groups) - set([g['name'] for g in self._get_groups()])
 
         for eachGroup in missing_groups:
             self.logger.info('Creating Zabbix group %s' % eachGroup)
@@ -558,12 +583,23 @@ class ZabbixConn(object):
         self.ldap_conn.disconnect()
         self.logger.info('Done!')
 
-    def _get_group_spec(self, group_spec: str) -> Union[Tuple[str, str], Tuple[str, None]]:
+    def _get_group_spec(self, group_spec: str) -> Tuple[str, str]:
         m = re.match(r"^(.+):(\d+)$", group_spec)
         if m:
             group_name = m.group(1).strip()
             role_id = m.group(2).strip()
             return group_name, role_id
-        else:
+
+        m = re.match(r"^(.+):(.+)$", group_spec)
+        if m:
+            group_name = m.group(1).strip()
+            role_id = str(self._get_role_id(m.group(2).strip()))
+            return group_name, role_id
+
+        if "role" in self.user_opt:
             group_name = group_spec
-            return group_name, None
+            role_id = str(self._get_role_id(self.user_opt['role']))
+            return group_name,  role_id
+        else:
+            self.logger.fatal("No default role specified")
+            sys.exit(3)
