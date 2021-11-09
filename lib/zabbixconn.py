@@ -4,6 +4,7 @@ import random
 import re
 import string
 import sys
+from functools import lru_cache
 from typing import Dict, Optional, Tuple, Union, List
 
 from pyzabbix import ZabbixAPI, ZabbixAPIException
@@ -23,7 +24,7 @@ class ZabbixConn(object):
         self.server = config.zbx_server
         self.username = config.zbx_username
         self.password = config.zbx_password
-        self.alldirusergroup = config.zbx_alldirusergroup.strip()
+        self.alldirusergroup = config.zbx_alldirusergroup
         self.auth = config.zbx_auth
         self.dryrun = config.dryrun
         self.nocheckcertificate = config.zbx_ignore_tls_errors
@@ -46,6 +47,19 @@ class ZabbixConn(object):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.username_attribute = "alias"
+
+    @lru_cache
+    def _get_group_id(self, group_name: str) -> int:
+        zabbix_group_id = None
+        self.logger.debug(f"Lookup for id >>{group_name}<<")
+        for g in self.get_groups():
+            if g['name'] == group_name:
+                zabbix_group_id = g['usrgrpid']
+                break
+        if not zabbix_group_id:
+            self.logger.fatal(f"unable to find group >>{group_name}<<")
+            sys.exit(3)
+        return zabbix_group_id
 
     def connect(self) -> bool:
         """
@@ -355,6 +369,8 @@ class ZabbixConn(object):
         for group_spec in self.ldap_groups:
             name, _ = self._get_group_spec(group_spec)
             groups.append(name)
+        if not self.alldirusergroup:
+            groups.append(self.alldirusergroup)
 
         missing_groups = set(groups) - set([g['name'] for g in self.get_groups()])
 
@@ -402,14 +418,7 @@ class ZabbixConn(object):
 
         self.ldap_conn.connect()
         if self.alldirusergroup:
-            zabbix_alldirusergroup_id = None
-            for g in self.get_groups():
-                if g['name'] == self.alldirusergroup:
-                    zabbix_alldirusergroup_id = g['usrgrpid']
-                    break
-            if not zabbix_alldirusergroup_id:
-                self.logger.fatal(f"Unable to find alldirusergroup >>{self.alldirusergroup}<<")
-                sys.exit(3)
+            zabbix_alldirusergroup_id = self._get_group_id(self.alldirusergroup)
             zabbix_alldirusergroup_users = self.get_group_members(zabbix_alldirusergroup_id)
         else:
             zabbix_alldirusergroup_id = None
@@ -422,7 +431,6 @@ class ZabbixConn(object):
             self.logger.info('Processing group >>>%s<<<...' % group_name)
             zabbix_all_users = self.get_users_names()
 
-            ldap_users = {}
             if self.preserve_accountids:
                 ldap_users = {k: v for k, v in self.ldap_conn.get_group_members(group_name).items()}
             else:
@@ -433,12 +441,7 @@ class ZabbixConn(object):
                 self.logger.info('Done for group %s. Nothing to do' % group_name)
                 continue
 
-            zabbix_group_id = []
-            for g in self.get_groups():
-                if g['name'] == group_name:
-                    zabbix_group_id.append(g['usrgrpid'])
-
-            zabbix_group_id = zabbix_group_id.pop()
+            zabbix_group_id = self._get_group_id(group_name)
 
             zabbix_group_users = self.get_group_members(zabbix_group_id)
 
