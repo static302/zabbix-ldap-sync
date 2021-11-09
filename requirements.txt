@@ -3,5 +3,6 @@ pyzabbix==1.0.0
 docopt==0.6.2
 requests==2.26.0
 mypy==0.910
-flake8==3.9.2
+flake8==4.0.1
 pytest==6.2.5
+coloredlogs==15.0.1

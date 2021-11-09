@@ -31,6 +31,7 @@ The zabbix-ldap-sync script is used for syncing LDAP users with Zabbix.
 """
 import logging
 
+import coloredlogs
 from docopt import docopt
 
 from lib.ldapconn import LDAPConn
@@ -74,10 +75,15 @@ Options:
     # Log to stdout
     ch = logging.StreamHandler()
     if args["--verbose"]:
-        ch.setLevel(logging.DEBUG)
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
+
+    ch.setLevel(loglevel)
 
     ch.setFormatter(formatter)
     logger.addHandler(ch)  # Use logger to log information
+    coloredlogs.install(fmt=formatter_string, level=loglevel)
 
     config = ZabbixLDAPConf(args['--file'])
 
