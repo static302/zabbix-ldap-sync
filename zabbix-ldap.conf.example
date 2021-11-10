@@ -5,7 +5,7 @@ base = dc=example,dc=org
 binduser = DOMAIN\ldapuser
 bindpass = ldappass
 # The groups to be synced, group "sysadmin" gets role superusers (id: 1), other groups get the default role defined in [user]
-groups = sysadmins:1,developer group
+groups = sysadmins:1,developer group:Admin role
 media = mail
 
 [activedirectory]
@@ -34,11 +34,7 @@ auth = webform
 alldirusergroup = LDAP synced users
 
 [user]
-# see https://www.zabbix.com/documentation/current/manual/api/reference/user/object
-# use "type" for releases prior 5.2,
-# type = 1
-# use "roleid" for releases after 5.2, comment out "type"
-roleid = 1
+role = User role
 timezone = Europe/Berlin
 rows_per_page = 100
 # display password when creating new users
