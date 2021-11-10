@@ -252,6 +252,8 @@ class ZabbixConn(object):
             else:
                 user_settings['type'] = int(role_id)
 
+        if "role" in user_settings:
+            del user_settings['role']
         user.update(user_settings)
         result = self.conn.user.create(user)
         return result
@@ -582,7 +584,7 @@ class ZabbixConn(object):
         self.ldap_conn.disconnect()
         self.logger.info('Done!')
 
-    def _get_group_spec(self, group_spec: str) -> Tuple[str, str]:
+    def _get_group_spec(self, group_spec: str) -> Tuple[str, int]:
         m = re.match(r"^(.+):(\d+)$", group_spec)
         if m:
             group_name = m.group(1).strip()
@@ -592,12 +594,12 @@ class ZabbixConn(object):
         m = re.match(r"^(.+):(.+)$", group_spec)
         if m:
             group_name = m.group(1).strip()
-            role_id = str(self._get_role_id(m.group(2).strip()))
+            role_id = self._get_role_id(m.group(2).strip())
             return group_name, role_id
 
         if "role" in self.user_opt:
             group_name = group_spec
-            role_id = str(self._get_role_id(self.user_opt['role']))
+            role_id = self._get_role_id(self.user_opt['role'])
             return group_name, role_id
         else:
             self.logger.fatal("No default role specified")

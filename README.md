@@ -61,7 +61,7 @@ You can use [Apache Directory Studio](https://directory.apache.org/studio/) to t
 * `bindpass` - Password for LDAP user
 * `groups` - LDAP groups to sync with Zabbix
    * supports wildcard - TESTED ONLY with Active Directory, see Command-line arguments
-   * roleids for the created users can be encoded with groups (`<goupname>:<numeric role id>`)
+   * roleids or rolename for the created users can be encoded with groups (`<goupname>:<numeric role id/name>`)
 * `media` - Name of the LDAP attribute of user object, that will be used to set `Send to` property of Zabbix user media. If entry is not used, no media synchronizastion is made. Common value is `mail`.
 * `ignore_tls_errors` - If set to true, tls connection problems are ignored (you should use this only for testing)
 
@@ -94,7 +94,7 @@ You can use [Apache Directory Studio](https://directory.apache.org/studio/) to t
 #### [user]
 Allows to override various properties for Zabbix users created by script. See [User object](https://www.zabbix.com/documentation/3.2/manual/api/reference/user/object) in Zabbix API documentation for available properties. If section/property doesn't exist, defaults are:
 
- * `roleid = 1` - User roleid. Possible values: `1` - (default) Zabbix user; `2` - Zabbix admin; `3` - Zabbix super admin. 
+ * `role = 1` - User roleid or role name
  * `show_password` - Display passwords. Possible values: `true` or `false` 
 
 #### [media]
