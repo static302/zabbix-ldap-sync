@@ -72,7 +72,7 @@ class ZabbixConn(object):
         if not zabbix_role_id:
             self.logger.fatal(f"unable to find role >>{role_name}<<")
             sys.exit(3)
-        return zabbix_role_id
+        return int(zabbix_role_id)
 
     def connect(self) -> bool:
         """
@@ -588,18 +588,18 @@ class ZabbixConn(object):
         m = re.match(r"^(.+):(\d+)$", group_spec)
         if m:
             group_name = m.group(1).strip()
-            role_id = m.group(2).strip()
+            role_id = int(m.group(2).strip())
             return group_name, role_id
 
         m = re.match(r"^(.+):(.+)$", group_spec)
         if m:
             group_name = m.group(1).strip()
-            role_id = self._get_role_id(m.group(2).strip())
+            role_id = int(self._get_role_id(m.group(2).strip()))
             return group_name, role_id
 
         if "role" in self.user_opt:
             group_name = group_spec
-            role_id = self._get_role_id(self.user_opt['role'])
+            role_id = int(self._get_role_id(self.user_opt['role']))
             return group_name, role_id
         else:
             self.logger.fatal("No default role specified")
