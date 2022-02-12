@@ -1,10 +1,17 @@
 import codecs
 import configparser
 import logging
+import subprocess
 import sys
 import traceback
 from typing import Optional
 
+
+def get_git_tag() -> str:
+    try:
+        return subprocess.check_output("git describe --abbrev=0 --tags".split()).decode().strip()
+    except:
+        return "[unknown]"
 
 class ZabbixLDAPConf(object):
     """
@@ -31,6 +38,7 @@ class ZabbixLDAPConf(object):
         self.zbx_deleteorphans = False
         self.zbx_recursivezbx_recursive = False
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info(f"configuration for zabbix-ldap-sync release {get_git_tag()}")
 
         try:
             self.ldap_type = ZabbixLDAPConf.try_get_item(parser, 'ldap', 'type', None)
