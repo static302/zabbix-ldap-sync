@@ -399,8 +399,9 @@ class ZabbixConn(object):
             groups.append(self.alldirusergroup)
 
         missing_groups = set(groups) - set([g['name'] for g in self._get_groups()])
-
         for eachGroup in missing_groups:
+            if not eachGroup:
+                continue
             self.logger.info('Creating Zabbix group %s' % eachGroup)
             if not self.dryrun:
                 grpid = self.create_group(eachGroup)
