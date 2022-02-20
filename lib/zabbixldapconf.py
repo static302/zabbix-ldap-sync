@@ -9,9 +9,10 @@ from typing import Optional
 
 def get_git_tag() -> str:
     try:
-        return subprocess.check_output("git describe --abbrev=0 --tags".split()).decode().strip()
+        return subprocess.check_output("git describe --abbrev=0 --tags".split(),
+                                       stderr=subprocess.DEVNULL).decode().strip()
     except:  # noqa: E722
-        return "[unknown]"
+        return "[unknown, no sourcecode checkout]"
 
 
 class ZabbixLDAPConf(object):
