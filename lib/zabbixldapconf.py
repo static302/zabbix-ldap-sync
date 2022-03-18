@@ -30,7 +30,6 @@ class ZabbixLDAPConf(object):
         parser.read_file(codecs.open(self.config, "r", "utf-8"))
 
         self.verbose = False
-        self.zbx_dryrun = False
 
         self.ldap_accountids = False
         self.ldap_recursive = False
@@ -38,7 +37,6 @@ class ZabbixLDAPConf(object):
         self.ldap_skipdisabled = False
 
         self.zbx_deleteorphans = False
-        self.zbx_recursivezbx_recursive = False
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"configuration for zabbix-ldap-sync release {get_git_tag()}")
 
@@ -79,9 +77,10 @@ class ZabbixLDAPConf(object):
             self.zbx_server = parser.get('zabbix', 'server')
 
             self.zbx_ignore_tls_errors = ZabbixLDAPConf.try_get_item_bool(parser, 'zabbix', 'ignore_tls_errors', False)
-            self.zbx_username = parser.get('zabbix', 'username')
-            self.zbx_password = parser.get('zabbix', 'password')
             self.zbx_auth = parser.get('zabbix', 'auth')
+            self.zbx_username = parser.get('zabbix', 'username') if self.zbx_auth != "token" else ""
+            self.zbx_password = parser.get('zabbix', 'password') if self.zbx_auth != "token" else ""
+            self.zbx_apitoken = parser.get('zabbix', 'apitoken') if self.zbx_auth == "token" else None
 
             self.zbx_alldirusergroup = ZabbixLDAPConf.try_get_item(parser, 'zabbix', 'alldirusergroup', None)
 

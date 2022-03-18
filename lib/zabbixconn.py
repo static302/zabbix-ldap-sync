@@ -24,6 +24,7 @@ class ZabbixConn(object):
         self.server = config.zbx_server
         self.username = config.zbx_username
         self.password = config.zbx_password
+        self.apitoken = config.zbx_apitoken
         self.alldirusergroup = config.zbx_alldirusergroup
         self.auth = config.zbx_auth
         self.dryrun = config.dryrun
@@ -83,7 +84,7 @@ class ZabbixConn(object):
 
         """
 
-        if self.auth == "webform":
+        if self.auth in ["webform","token"]:
             self.conn = ZabbixAPI(self.server)
         elif self.auth == "http":
             self.conn = ZabbixAPI(self.server, use_authenticate=False)
@@ -96,7 +97,7 @@ class ZabbixConn(object):
             self.conn.session.verify = False
 
         try:
-            self.conn.login(self.username, self.password)
+            self.conn.login(self.username, self.password, api_token=self.apitoken)
         except ZabbixAPIException as e:
             raise SystemExit('Cannot login to Zabbix server: %s' % e)
 
