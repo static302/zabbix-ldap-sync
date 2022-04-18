@@ -25,7 +25,7 @@ You also need to have your Zabbix Frontend configured to authenticate against an
 (using http or ldap-auth)
 
 Check the official documentation of Zabbix on how to 
-[configure Zabbix to authenticate against an AD/LDAP directory server](https://www.zabbix.com/documentation/2.2/manual/web_interface/frontend_sections/administration/authentication).
+[configure Zabbix to authenticate against an AD/LDAP directory server](https://www.zabbix.com/documentation/current/en/manual/web_interface/frontend_sections/administration/authentication)
 
 ### Setup virtualenv
 
@@ -94,9 +94,10 @@ You can use [Apache Directory Studio](https://directory.apache.org/studio/) to t
 * `ignore_tls_errors` - If set to true, tls connection problems are ignored (you should use this only for testing)
 
 #### [user]
-Allows to override various properties for Zabbix users created by script. See [User object](https://www.zabbix.com/documentation/3.2/manual/api/reference/user/object) in Zabbix API documentation for available properties. If section/property doesn't exist, defaults are:
 
- * `role = 1` - User roleid or role name
+Allows to override various properties for Zabbix users created by script. See [User object](https://www.zabbix.com/documentation/current/en/manual/api/reference/user/object) in Zabbix API documentation for available properties. If section/property doesn't exist, defaults are:
+
+ * `role = User role` - User numeric role id or role name, for zabbix <= 4.4 use ["type"](https://www.zabbix.com/documentation/4.4/en/manual/api/reference/user/object) with a suitable value (i.e. "1")
  * `show_password` - Display passwords. Possible values: `true` or `false` 
 
 #### [media]
@@ -104,23 +105,12 @@ Allows to override media type and various properties for Zabbix media for users 
 
 * `decription` - Description of Zabbix media (`Email`, `Jabber`, `SMS`, etc...). This entry is optional, default value is `Email`.
 
-You can configure additional properties in this section. See [Media object](https://www.zabbix.com/documentation/3.2/manual/api/reference/usermedia/object#media) in Zabbix API documentation for available properties. If this section/property doesn't exist, defaults fro additional properties are:
+You can configure additional properties in this section. See [Media object](https://www.zabbix.com/documentation/current/en/manual/api/reference/user/object) in Zabbix API documentation for available properties. If this section/property doesn't exist, defaults fro additional properties are:
 
 * `active = 0` - Whether the media is enabled. Possible values: `0`- enabled; `1` - disabled.
-* `period = 1-7,00:00-24:00` - Time when the notifications can be sent as a [time period](https://www.zabbix.com/documentation/3.2/manual/appendix/time_period).
+* `period = 1-7,00:00-24:00` - Time when the notifications can be sent as a [time period](https://www.zabbix.com/documentation/current/en/manual/appendix/time_period).
 * `onlycreate = true` -  Process media only on newly created users if this is set to `true`. 
-* `severity = Disaster,High,Average,Warning` - A list of severities to send notifications about, seperated by comma (alternative: the numeric value).
-```
-╔═════════════╦════════╦════╦═══════╦═══════╦═══════════╦══════════════╗
-║  Severity   ║Disaster║High║Average║Warning║Information║Not Classified║
-╠═════════════╬════════╬════╬═══════╬═══════╬═══════════╬══════════════╣
-║  Enabled ?  ║      1 ║  1 ║     1 ║     1 ║         1 ║            1 ║
-╠═════════════╬════════╩════╩═══════╩═══════╩═══════════╩══════════════╣
-║Decimal value║                     111111 = 63                        ║
-║             ║           Linux: printf '%i\n' "$((2#111111))"         ║
-║             ║Disaster,High,Average,Warning,Information,Not Classified║
-╚═════════════╩════════════════════════════════════════════════════════╝
-```
+* `severity = Disaster,High,Average,Warning` - A list of severities to send notifications about, seperated by comma (alternative: the numeric bitmap value).
 
 
 ## Configuration file example
