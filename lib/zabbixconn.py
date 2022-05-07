@@ -102,7 +102,7 @@ class ZabbixConn(object):
             raise SystemExit('Cannot login to Zabbix server: %s' % e)
 
         self.logger.info("Connected to Zabbix API Version %s" % self.conn.api_version())
-        if self.conn.api_version() >= "5.4":
+        if float(self.conn.api_version()) > 5.2:
             self.username_attribute = "username"
         return True
 
@@ -248,7 +248,7 @@ class ZabbixConn(object):
                 user_settings[opt] = value
 
         if role_id:
-            if self.conn.api_version() >= "5.2":
+            if float(self.conn.api_version()) > 5.2:
                 user_settings['roleid'] = int(role_id)
             else:
                 user_settings['type'] = int(role_id)
@@ -285,7 +285,8 @@ class ZabbixConn(object):
         userid = self.get_user_id(user)
 
         result = None
-        if self.conn.api_version() >= "3.4":
+
+        if float(self.conn.api_version()) > 3.2:
             members = self.conn.usergroup.get(usrgrpids=[str(group_id)], selectUsers='extended')
             group_users = members[0]['users']
             user_ids = set()
@@ -313,7 +314,8 @@ class ZabbixConn(object):
         userid = self.get_user_id(user)
 
         result = None
-        if self.conn.api_version() >= "3.4":
+
+        if float(self.conn.api_version()) > 3.2:
             members = self.conn.usergroup.get(usrgrpids=[str(group_id)], selectUsers='extended')
             group_users = members[0]['users']
             user_ids = set()
@@ -354,7 +356,7 @@ class ZabbixConn(object):
                 if unwanted_attrib in media_defaults:
                     del media_defaults[unwanted_attrib]
 
-            if self.conn.api_version() >= "3.4":
+            if float(self.conn.api_version()) > 3.2:
                 result = self.conn.user.update(userid=str(userid), user_medias=[media_defaults])
             else:
                 self.delete_media_by_description(user, description)
