@@ -50,6 +50,14 @@ class ZabbixConn(object):
         self.username_attribute = "alias"
 
     @lru_cache()
+    def get_api_minor_version(self) -> float:
+        version_str = self.conn.api_version()
+        m = re.match(r"(\d+\.\d+)\.\d+", version_str)
+        if m:
+            version_str = m.group(1)
+        return float(version_str)
+
+    @lru_cache()
     def _get_group_id(self, group_name: str) -> int:
         zabbix_group_id = None
         self.logger.debug(f"Lookup for groupid >>{group_name}<<")
@@ -84,7 +92,7 @@ class ZabbixConn(object):
 
         """
 
-        if self.auth in ["webform","token"]:
+        if self.auth in ["webform", "token"]:
             self.conn = ZabbixAPI(self.server)
         elif self.auth == "http":
             self.conn = ZabbixAPI(self.server, use_authenticate=False)
@@ -102,8 +110,10 @@ class ZabbixConn(object):
             raise SystemExit('Cannot login to Zabbix server: %s' % e)
 
         self.logger.info("Connected to Zabbix API Version %s" % self.conn.api_version())
-        if float(self.conn.api_version()) > 5.2:
+
+        if self.get_api_minor_version() > 5.2:
             self.username_attribute = "username"
+
         return True
 
     def get_users(self) -> List[dict]:
@@ -248,7 +258,7 @@ class ZabbixConn(object):
                 user_settings[opt] = value
 
         if role_id:
-            if float(self.conn.api_version()) > 5.2:
+            if self.get_api_minor_version() > 5.2:
                 user_settings['roleid'] = int(role_id)
             else:
                 user_settings['type'] = int(role_id)
@@ -286,7 +296,7 @@ class ZabbixConn(object):
 
         result = None
 
-        if float(self.conn.api_version()) > 3.2:
+        if self.get_api_minor_version() > 3.2:
             members = self.conn.usergroup.get(usrgrpids=[str(group_id)], selectUsers='extended')
             group_users = members[0]['users']
             user_ids = set()
@@ -315,7 +325,7 @@ class ZabbixConn(object):
 
         result = None
 
-        if float(self.conn.api_version()) > 3.2:
+        if self.get_api_minor_version() > 3.2:
             members = self.conn.usergroup.get(usrgrpids=[str(group_id)], selectUsers='extended')
             group_users = members[0]['users']
             user_ids = set()
@@ -356,7 +366,7 @@ class ZabbixConn(object):
                 if unwanted_attrib in media_defaults:
                     del media_defaults[unwanted_attrib]
 
-            if float(self.conn.api_version()) > 3.2:
+            if self.get_api_minor_version() > 3.2:
                 result = self.conn.user.update(userid=str(userid), user_medias=[media_defaults])
             else:
                 self.delete_media_by_description(user, description)
