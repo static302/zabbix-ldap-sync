@@ -1,4 +1,4 @@
-.dockerignore
+.git
 README.md
 **/.gitignore
 Thumbs.db
@@ -10,4 +10,13 @@ Thumbs.db
 .project
 .settings
 .classpath
-*.conf
+lib/__pycache__
+*.pyc
+venv
+Dockerfile
+*.example
+.dockerignore
+Makefile
+mypy.ini
+packaging
+.flake8

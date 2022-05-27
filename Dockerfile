@@ -1,20 +1,21 @@
-FROM ubuntu:latest
+FROM python:3.8-alpine3.14
 
-MAINTAINER operations@flipapp.de
+LABEL org.opencontainers.image.authors="kirill@iliashenko.com"
 
-USER 0
-ADD /docker-scripts /tmp/setup
-RUN chmod 755 /tmp/setup/*.sh
-RUN /tmp/setup/01_phase_base.sh
-ADD /requirements.txt /requirements.txt
-RUN /tmp/setup/04_install.sh
-ARG FORCE_UPGRADE_MARKER=unknown
-RUN /tmp/setup/05_perform_upgrade.sh
-ADD /lib /zabbix-ldap-sync/lib
-ADD /zabbix-ldap-sync /zabbix-ldap-sync/zabbix-ldap-sync
-ADD /zabbix-ldap.conf.example /zabbix-ldap-sync/zabbix-ldap.conf.example
-RUN /tmp/setup/10_finalize.sh
-USER 1001
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-WORKDIR /
-ENTRYPOINT ["/zabbix-ldap-sync/zabbix-ldap-sync"]
+WORKDIR /app
+COPY requirements.txt /app
+RUN apk add --no-cache openldap-dev gcc musl-dev && rm -rf /var/cache/apk/* \
+&& python -m pip --no-cache-dir install -r requirements.txt && apk del gcc musl-dev
+COPY . /app
+# Uncomment this if your zabbix server uses certificate from internal CA and add mentioned files to the working directory
+# or use "-n, --no-check-certificate" in CMD
+RUN cat ca.pem >> /usr/local/lib/python3.8/site-packages/certifi/cacert.pem \
+&& cat ca.crt >> /etc/ssl/certs/ca-certificates.crt
+RUN adduser -u 1001 --disabled-password appuser && chown -R appuser /app
+USER appuser
+
+CMD [ "-srda", "-f", "/app/zabbix-ldap.conf" ]
+ENTRYPOINT [ "/app/zabbix-ldap-sync" ]
