@@ -78,6 +78,9 @@ class ZabbixConn(object):
             if g['name'] == role_name:
                 zabbix_role_id = g['roleid']
                 break
+            if g['roleid'] == role_name:
+                zabbix_role_id = g['roleid']
+                break
         if not zabbix_role_id:
             self.logger.fatal(f"unable to find role >>{role_name}<<")
             sys.exit(3)
@@ -617,4 +620,6 @@ class ZabbixConn(object):
             return group_name, role_id
         else:
             self.logger.fatal("No default role specified")
+            self.logger.fatal("user_opt:")
+            self.logger.fatal(self.user_opt)
             sys.exit(3)
