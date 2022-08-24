@@ -615,11 +615,15 @@ class ZabbixConn(object):
             return group_name, role_id
 
         if "role" in self.user_opt:
-            group_name = group_spec
-            role_id = int(self._get_role_id(self.user_opt['role']))
-            return group_name, role_id
+            lookup_key = "role"
+        elif "type" in self.user_opt:
+            lookup_key = "type"
         else:
             self.logger.fatal("No default role specified")
             self.logger.fatal("user_opt:")
             self.logger.fatal(self.user_opt)
             sys.exit(3)
+
+        group_name = group_spec
+        role_id = int(self._get_role_id(self.user_opt[lookup_key]))
+        return group_name, role_id
