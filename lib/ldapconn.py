@@ -136,11 +136,11 @@ class LDAPConn(object):
             # Fill dictionary with usernames and corresponding DNs
             for item in group_members:
                 dn = item[0]
-
-                username = item[1][self.uid_attribute]
-                user = ''.join(username[0].decode('utf-8'))
-
-                final_listing[user] = dn
+                
+                if item[1].get(self.uid_attribute):
+                    username = item[1][self.uid_attribute]
+                    user = ''.join(username[0].decode('utf-8'))
+                    final_listing[user] = dn
 
         return final_listing
 
