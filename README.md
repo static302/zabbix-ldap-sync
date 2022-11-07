@@ -51,7 +51,7 @@ In order to use the *zabbix-ldap-sync* script we need to create a configuration 
 
 ### Config file sections
 
-*RECOMMENDATION:*  Use a ldap client like [Apache Directory Studio](https://directory.apache.org/studio/) to test the ldap connection, filters and to inspect available attributes.
+*RECOMMENDATION:*  Use a ldap client like [Apache Directory Studio](https://directory.apache.org/studio/) to test the ldap connection, filters and to inspect available attributes. The flag `--verbose` helps to get the ldap filters calculated by the script.
 
 #### [ldap]
 * `type` - Select type of ldap server, can be `activedirectory` or `openldap`
