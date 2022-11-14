@@ -537,7 +537,7 @@ class ZabbixConn(object):
             count = 0
             if absent_users:
                 for each_user in absent_users:
-                    if each_user not in zabbix_alldirusergroup_users:
+                    if zabbix_alldirusergroup_id and each_user not in zabbix_alldirusergroup_users:
                         continue
                     count = count + 1
                     if count == 1:
