@@ -29,21 +29,32 @@ Check the official documentation of Zabbix on how to
 
 ### Setup virtualenv
 
-Debian and Ubuntu Systems:
-```
-sudo apt-get install python-dev virtualenv libpython3.*-dev libldap2-dev libsasl2-dev
-virtualenv -p python3 venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+* Clone the git repository
+  ```
+  git clone https://github.com/zabbix-tooling/zabbix-ldap-sync.git
+  cd zabbix-ldap-sync
+  ```
+* Install the basic tools for virtualenv and create one
+  * Debian and Ubuntu Systems:
+    ```
+    sudo apt-get install python-dev virtualenv libpython3.*-dev libldap2-dev libsasl2-dev
+    virtualenv -p python3 venv
+    ```
+  * CentOS and Redhat Systems:
+    ```
+    sudo yum install python3-devel openldap-devel
+    python3 -m venv venv
+    ```
+* Activate the virtualenv and install the dependencies of the project
+  ```
+  source venv/bin/activate
+  pip install -r requirements.txt
+  ```
+* Run the tool
+  ```
+  ./zabbix-ldap-sync -h
+  ```
 
-CentOS and Redhat Systems:
-```
-sudo yum install python3-devel openldap-devel
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
 
 ## Configuration
 
