@@ -165,6 +165,26 @@ To sync different LDAP groups with different options, create separate config fil
 
 You would generally be running the above scripts on regular basis, say each day from `cron(8)` in order to make sure your Zabbix system is in sync with LDAP.
 
+## Using Docker Compose
+
+Create the config directory:
+
+	$ mkdir config
+
+Copy the config to directory with `zabbix-ldap.conf` name, example:
+
+	$ cp ./zabbix-ldap.conf.example config/zabbix-ldap.conf
+
+You can change the docker-compose volume mount point or config file name on [docker-compose.yml](docker-compose.yml)
+
+Finally run the docker-compose:
+
+	$ docker-compose up
+
+To run on detached mode use the param `-d`:
+
+	$ docker-compose up -d
+
 # Open Developent Tasks
 
 This tool works for years now, but from a view of serious software development this piece of code still needs major refactorings.

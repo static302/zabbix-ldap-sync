@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  zabbix-ldap-sync:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: zabbix-ldap-sync
+    container_name: zabbix-ldap-sync
+    network_mode: "host"
+    restart: unless-stopped
+    working_dir: /
+    volumes:
+      - ./config/:/config
+    entrypoint: /zabbix-ldap-sync/zabbix-ldap-sync -f /config/zabbix-ldap.conf
