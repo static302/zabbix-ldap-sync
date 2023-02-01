@@ -173,15 +173,11 @@ Major refactoring tends to break things which are not available in my testing en
 Starting from the original implementation, some things have already been improved, extended and simplified.
 In my busy everyday life, I have unfortunately not yet found time for the following topics.
 
+Contributions are very welcome, especially for the following topics:
+
 - eliminate the need to pass around configuration values between classes
 - eliminate the need of different configuration sections for ldap 'openldap' and 'ad'
-- remove all warnings
-- introduce python typing
 - isolate configuration logic in lib/zabbixldapconf.py
 - add software tests
-- provide the possibility 
-
-Contributions are very welcome.
-
-
+- add azure-ad/graphapi support
 
