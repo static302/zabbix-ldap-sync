@@ -1,6 +1,7 @@
 *~
 \#*
 *.conf
+config/
 lib/__pycache__/*
 *.pyc
 *.swo
