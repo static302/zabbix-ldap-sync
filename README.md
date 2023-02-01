@@ -7,7 +7,7 @@ It can automatically import existing LDAP groups and users into Zabbix, thus mak
 Maintained by Marc Schöchlin <ms@256bit.org>
 
 This project moved to https://github.com/zabbix-tooling/zabbix-ldap-sync to ease collaboration of developers.
-You can switchover your current git clone byexecuting the follwing command:
+You can switchover your current git clone by executing the follwing command:
 ```
 git remote set-url origin git@github.com:zabbix-tooling/zabbix-ldap-sync.git # or
 git remote set-url origin https://github.com/zabbix-tooling/zabbix-ldap-sync.git
